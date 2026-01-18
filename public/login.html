@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Winz // ACCESS</title>
+
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+<style>
+:root {
+    --primary: #8A2BE2;
+    --accent: #00F3FF;
+    --alert: #FF0055;
+    --dark-bg: #030305;
+    --panel-bg: rgba(10,10,16,0.75);
+    --border: rgba(255,255,255,0.1);
+    --font-tech: 'JetBrains Mono', monospace;
+    --font-display: 'Rajdhani', sans-serif;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+    background-color: var(--dark-bg);
+    color: white;
+    font-family: var(--font-display);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    perspective: 1000px;
+}
+.cyber-grid { position: fixed; width:200vw; height:200vh; top:-50%; left:-50%;
+background-image: linear-gradient(rgba(0,243,255,0.05) 1px, transparent 1px),
+                 linear-gradient(90deg, rgba(138,43,226,0.05) 1px, transparent 1px);
+background-size:50px 50px; transform: perspective(500px) rotateX(60deg);
+animation: gridMove 10s linear infinite; z-index:1; pointer-events:none;}
+@keyframes gridMove {0% {transform: perspective(500px) rotateX(60deg) translateY(0);}
+100% {transform: perspective(500px) rotateX(60deg) translateY(50px);}}
+.overlay { position: fixed; inset:0; background: radial-gradient(circle,transparent 0%,#000 90%); z-index:2; pointer-events:none; }
+.scanlines { position: fixed; inset:0; background: linear-gradient(to bottom, rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 50%); background-size:100% 4px; z-index:3; pointer-events:none; opacity:0.6; }
+#toast { position: fixed; top: 30px; left:50%; transform: translateX(-50%) translateY(-100px);
+background: rgba(10,10,16,0.98); backdrop-filter: blur(20px); border:1px solid var(--alert); border-top:3px solid var(--alert);
+color:white; font-family: var(--font-tech); font-size:13px; padding:18px 30px; opacity:0;
+transition: transform 0.5s, opacity 0.4s; z-index:9999; display:flex; align-items:center; gap:15px; border-radius:8px;
+box-shadow:0 10px 30px rgba(255,0,85,0.4), 0 0 40px rgba(138,43,226,0.2); min-width:350px; max-width:90%; text-align:center;}
+#toast.visible { transform: translateX(-50%) translateY(0); opacity:1; }
+#toast.success { border-color:#00ff9d; border-top-color:#00ff9d; box-shadow:0 10px 30px rgba(0,255,157,0.4),0 0 40px rgba(0,243,255,0.2);}
+#toast.warning { border-color:#ffd700; border-top-color:#ffd700; box-shadow:0 10px 30px rgba(255,215,0,0.4),0 0 40px rgba(255,215,0,0.2);}
+#toast.info { border-color:var(--accent); border-top-color:var(--accent); box-shadow:0 10px 30px rgba(0,243,255,0.4),0 0 40px rgba(138,43,226,0.2);}
+#toast.error { border-color:var(--alert); border-top-color:var(--alert); box-shadow:0 10px 30px rgba(255,0,85,0.4),0 0 40px rgba(255,0,127,0.2);}
+
+.login-wrapper { position:relative; z-index:10; width:100%; max-width:400px; padding:20px; }
+.cyber-card { background: var(--panel-bg); backdrop-filter: blur(15px); border:1px solid var(--border);
+border-radius:4px; padding:40px 30px; box-shadow:0 0 40px rgba(0,0,0,0.8); position:relative; }
+.header { text-align:center; margin-bottom:35px; }
+.logo-circle { width:80px;height:80px;margin:0 auto 20px;border-radius:50%;border:2px dashed var(--border); padding:4px; animation: spinSlow 20s linear infinite; }
+.logo-circle img { width:100%; height:100%; border-radius:50%; object-fit:cover; animation: spinReverse 20s linear infinite; }
+.glitch-title { font-family: var(--font-display); font-weight:800; font-size:36px; letter-spacing:4px; color:white; text-transform:uppercase; text-shadow:0 0 10px var(--primary); margin:0;}
+.status-text { font-family:var(--font-tech); font-size:12px; color:var(--accent); margin-top:5px; display:block; height:20px;}
+.input-group { margin-bottom:25px; }
+.input-group label { font-family:var(--font-tech); font-size:10px; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:8px; }
+.custom-input { width:100%; background:rgba(0,0,0,0.3); border:1px solid var(--border); border-left:2px solid var(--border);
+padding:14px 15px; color:white; font-family:var(--font-tech); font-size:14px; outline:none; transition:0.3s; }
+.custom-input:focus { background:rgba(138,43,226,0.05); border-color:var(--accent); border-left:4px solid var(--accent); }
+.btn-cy { width:100%; background:transparent; border:1px solid var(--primary); color:var(--primary);
+padding:15px; font-family:var(--font-tech); font-weight:bold; font-size:14px; text-transform:uppercase; cursor:pointer; position:relative; overflow:hidden; margin-top:10px; }
+.btn-cy::before { content:''; position:absolute; top:0; left:-100%; width:100%; height:100%; background:var(--primary); transition:0.4s; z-index:-1; }
+.btn-cy:hover { color:white; box-shadow:0 0 20px rgba(138,43,226,0.4); }
+.btn-cy:hover::before { left:0; }
+.sys-info { margin-top:30px; display:flex; justify-content:space-between; font-family:var(--font-tech); font-size:9px; color:rgba(255,255,255,0.3); border-top:1px solid rgba(255,255,255,0.1); padding-top:15px; }
+.dud { color:var(--alert); opacity:0.7; }
+
+.btn-buy { display: inline-block; margin-top: 12px; background-color: #ff0055; color: white; padding: 8px 16px;
+font-size: 14px; border-radius: 5px; text-decoration: none; text-align: center; transition: background 0.3s; }
+.btn-buy:hover { background-color: #cc0044; }
+</style>
+</head>
+<body>
+
+<div class="cyber-grid"></div>
+<div class="overlay"></div>
+<div class="scanlines"></div>
+
+<div id="toast">
+    <i class="fas fa-times-circle"></i>
+    <span id="toastMsg">ACCESS DENIED</span>
+</div>
+
+<div class="login-wrapper" id="tiltCard">
+    <div class="cyber-card">
+        <div class="header">
+            <div class="logo-circle">
+                <img src="https://files.catbox.moe/ygcufo.jpg" alt="Logo Winz">
+            </div>
+            <h1 class="glitch-title" id="mainTitle">WINZ ACCESS</h1>
+            <span class="status-text" id="statusText">SYSTEM INITIALIZED</span>
+        </div>
+
+        <!-- Form Login -->
+        <form method="POST" action="/auth" id="loginForm">
+            <div class="input-group">
+                <label>Identification</label>
+                <input type="text" name="username" class="custom-input" placeholder="USR-ID" autocomplete="off" required>
+            </div>
+            <div class="input-group">
+                <label>Security Key</label>
+                <!-- Nama field diganti password supaya sesuai index.js -->
+                <input type="password" name="password" class="custom-input" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn-cy">
+                <i class="fas fa-terminal" style="margin-right:8px"></i> Execute
+            </button>
+            <a href="https://t.me/Winz_ofcial" target="_blank" class="btn-buy">
+                <i class="fas fa-shopping-cart" style="margin-right:8px"></i> Buy Aces
+            </a>
+        </form>
+    </div>
+</div>
+
+<script>
+function showToast(msg, type='error') {
+    const toast = document.getElementById('toast');
+    const icon = toast.querySelector('i');
+    const toastMsg = document.getElementById('toastMsg');
+    toast.className = '';
+    toastMsg.textContent = msg.toUpperCase();
+    switch(type){
+        case 'success': toast.classList.add('success'); icon.className='fas fa-check-circle'; break;
+        case 'warning': toast.classList.add('warning'); icon.className='fas fa-exclamation-triangle'; break;
+        case 'info': toast.classList.add('info'); icon.className='fas fa-info-circle'; break;
+        default: toast.classList.add('error'); icon.className='fas fa-times-circle';
+    }
+    toast.classList.add('visible');
+    setTimeout(()=>toast.classList.remove('visible'),5000);
+}
+
+// 3D Tilt Effect
+const cardInner = document.querySelector('.cyber-card');
+document.addEventListener('mousemove', (e)=>{
+    const xAxis = (window.innerWidth/2 - e.pageX)/40;
+    const yAxis = (window.innerHeight/2 - e.pageY)/40;
+    cardInner.style.transform = `rotateY(${Math.max(-10,Math.min(10,xAxis))}deg) rotateX(${Math.max(-10,Math.min(10,yAxis))}deg)`;
+});
+document.addEventListener('mouseleave', ()=>{ cardInner.style.transform='rotateY(0deg) rotateX(0deg)'; });
+</script>
+
+</body>
+</html>

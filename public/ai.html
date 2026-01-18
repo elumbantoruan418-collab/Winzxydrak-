@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>— Chat AI —</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    body { background: #f5f6fa; display: flex; justify-content: center; padding: 20px; }
+    .chat-container {
+      background: #fff; width: 420px; max-width: 95%;
+      border-radius: 20px; box-shadow: 0 4px 30px rgba(0,0,0,.1);
+      display: flex; flex-direction: column; min-height: 600px;
+    }
+    .header { text-align: center; padding: 20px; }
+    .chat-box { flex: 1; padding: 15px; background: #f9f9fb; display: flex; flex-direction: column; gap: 10px; }
+    .msg { max-width: 80%; padding: 10px 14px; border-radius: 15px; font-size: 13px; }
+    .user { align-self: flex-end; background: #e3e6ff; }
+    .ai { align-self: flex-start; background: #1e1f2e; color: #fff; }
+    .input-area { padding: 12px; border-top: 1px solid #ddd; }
+    input { width: 100%; padding: 12px; border-radius: 18px; border: 1px solid #ccc; }
+    button { margin-top: 10px; padding: 10px; border-radius: 18px; border: none; background: #6b4eff; color: #fff; font-size: 16px; cursor: pointer; }
+    button:hover { background: #5940d9; }
+  </style>
+</head>
+
+<body>
+  <div class="chat-container">
+    <div class="header">
+      <h2>— Chat AI —</h2>
+      <p>Asisten santai & cepat ✦</p>
+    </div>
+
+    <div class="chat-box" id="chatBox">
+      <div class="msg ai">Halo! Chat AI winz siap bantu ✦</div>
+    </div>
+
+    <div class="input-area">
+      <input id="userInput" placeholder="Tulis pesan..." />
+      <button type="button" id="sendBtn">💬 Kirim</button>
+    </div>
+  </div>
+
+  <!-- SCRIPT DI BAWAH + DOM READY -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const chatBox = document.getElementById("chatBox");
+      const input = document.getElementById("userInput");
+      const btn = document.getElementById("sendBtn");
+
+      function addMsg(role, text) {
+        const div = document.createElement("div");
+        div.className = "msg " + role;
+        div.textContent = text;
+        chatBox.appendChild(div);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+
+      async function kirimPesan() {
+        const text = input.value.trim();
+        if (!text) return;
+
+        addMsg("user", text);
+        input.value = "";
+        addMsg("ai", "Mengetik...");
+
+        try {
+          const res = await fetch(
+            "https://api.ootaizumi.web.id/ai/copilot?prompt=" +
+            encodeURIComponent(text)
+          );
+
+          if (!res.ok) throw new Error("API error");
+
+          const data = await res.json();
+          chatBox.lastChild.remove();
+          addMsg("ai", data.result?.text || "Tidak ada jawaban");
+        } catch (e) {
+          chatBox.lastChild.remove();
+          addMsg("ai", "❌ Gagal konek API");
+          console.error(e);
+        }
+      }
+
+      btn.addEventListener("click", kirimPesan);
+      input.addEventListener("keypress", e => e.key === "Enter" && kirimPesan());
+    });
+  </script>
+</body>
+</html>
